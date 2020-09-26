@@ -6,6 +6,7 @@
 		public $user  = null;
 		public $renderT = null;
 		public $last_error = '';
+		public $solver = null; //Solver object
 
 		protected $db      = null;
 		protected $enviro  = null;
@@ -47,14 +48,14 @@
 			http_response_code($err_code);
 			exit(json_encode([
 				'status' => 'success',
-				'data'   => $data,
-				'error'  => ''
+				'data'   => [],
+				'error'  => $err_info
 			]));
 		}
 
 		function cacheJsonToFile($url, $filename = 'cache.json'): bool {
-			$json = \App\Utilities::curlGET($url);
-			if(! \App\Utilities::isJson($json)) {
+			$json = Utilities::curlGET($url);
+			if(! Utilities::isJson($json)) {
 				$this->last_error = 'The requested file is not valid JSON';
 				return false;
 			} else {
@@ -94,5 +95,23 @@
 				}
 			}
 			return $cached_count == count($cache_orders);
+		}
+
+		public function setAPIHeaders(): void {
+			if(!headers_sent()) {
+				header('Access-Control-Allow-Origin: *', false);
+				header('Content-Type: application/json', false);
+			}
+		}
+
+		public function parseRequest(): bool {
+			$request = Utilities::dataFilter($_SERVER['REQUEST_URI']);
+			$this->solver = new Solver();
+			if(! $this->solver->parseRequest($request)) {
+				$this->last_error = $this->solver->last_error;
+				return false;
+			} else {
+				return true;
+			}
 		}
 	}
