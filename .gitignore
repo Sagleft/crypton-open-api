@@ -2,6 +2,7 @@
 /composer.lock
 /vendor/**
 /logs/**
+/cache/**
 .env
 .htaccess
 *.bak
