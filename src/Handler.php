@@ -51,4 +51,48 @@
 				'error'  => ''
 			]));
 		}
+
+		function cacheJsonToFile($url, $filename = 'cache.json'): bool {
+			$json = \App\Utilities::curlGET($url);
+			if(! \App\Utilities::isJson($json)) {
+				$this->last_error = 'The requested file is not valid JSON';
+				return false;
+			} else {
+				$filepath = __DIR__ . '/../cache/' . $filename;
+				file_put_contents($filepath, $json);
+				$status_success = file_exists($filepath);
+				if($status_success) {
+					return true;
+				} else {
+					$this->last_error = 'failed to save cached file named ' . $filename;
+					return false;
+				}
+			}
+		}
+
+		public function updateCachedData(): bool {
+			$trade_pair = 'CRPUSDT';
+			$url_host = 'https://api.zg.com/openapi/quote/v1/';
+			$cached_count = 0;
+
+			$cache_orders = [
+				'market_depth'  => 'depth?limit=50&symbol=' . $trade_pair,
+				'recent_trades' => 'trades?limit=10&symbol=' . $trade_pair,
+				'chart_data'    => 'klines?limit=30&interval=4h&symbol=' . $trade_pair,
+				'price_change'  => 'ticker/24hr?symbol=' . $trade_pair,
+				'price_current' => 'ticker/price?symbol=' . $trade_pair,
+				'order_book'    => 'ticker/bookTicker?symbol=' . $trade_pair
+			];
+
+			foreach($cache_orders as $key => $value) {
+				$status_success = $this->cacheJsonToFile(
+					$url_host . $value, //url
+					$key . '.json'      //filename
+				);
+				if($status_success) {
+					$cached_count++;
+				}
+			}
+			return $cached_count == count($cache_orders);
+		}
 	}

@@ -47,7 +47,7 @@
 			}
 		}
 
-		public static function curl_get($url) {
+		public static function curlGET($url) {
 			return Utilities::cURL($url, '', '', '');
 		}
 
