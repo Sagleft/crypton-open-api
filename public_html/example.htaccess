@@ -1,0 +1,10 @@
+RewriteEngine On
+RewriteRule ^api/ api.php
+
+<Files *.htaccess> 
+  deny from all 
+</Files>
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^(.*)$ $1.php
