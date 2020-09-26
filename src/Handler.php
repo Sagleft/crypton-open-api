@@ -33,7 +33,7 @@
 		}
 		
 		public function checkINT($value = 0): int {
-			return Utilities::dataFilter($value, $this->db);
+			return (int) Utilities::dataFilter($value, $this->db);
 		}
 		
 		public function apiSuccess($data = []): void {
