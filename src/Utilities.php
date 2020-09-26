@@ -105,4 +105,62 @@
 			}
 			return $data;
 		}
+		
+		public static function jsonReadableEncode($in, $indent = 0, $from_array = false)
+		{
+			//\App\Utilities::jsonReadableEncode
+			//$_myself = __FUNCTION__;
+
+			$out = '';
+
+			foreach ($in as $key => $value)
+			{
+				$out .= str_repeat("\t", $indent + 1);
+				$key_escaped = Utilities::jsonEscape((string) $key);
+				$escape_symb = '"';
+				//if(is_int($key)) {
+				//	$escape_symb = '';
+				//}
+				$out .= $escape_symb . $key_escaped . $escape_symb . ': ';
+
+				if (is_object($value) || is_array($value))
+				{
+					$out .= "\n";
+					$out .= Utilities::jsonReadableEncode($value, $indent + 1);
+				}
+					elseif (is_bool($value))
+				{
+					$out .= $value ? 'true' : 'false';
+				}
+					elseif (is_null($value))
+				{
+					$out .= 'null';
+				}
+					elseif (is_string($value))
+				{
+					$out .= "\"" . Utilities::jsonEscape($value) ."\"";
+				}
+					else
+				{
+					$out .= $value;
+				}
+
+				$out .= ",\n";
+			}
+
+			if (!empty($out))
+			{
+				$out = substr($out, 0, -2);
+			}
+
+			$out  = str_repeat("\t", $indent) . "{\n" . $out;
+			$out .= "\n" . str_repeat("\t", $indent) . "}";
+
+			return $out;
+		}
+		
+		public static function jsonEscape($json) {
+			//\App\Utilities::jsonEscape
+			return preg_replace("!([\b\t\n\r\f\"\\'])!", "\\\\\\1", $json);
+		}
 	}
